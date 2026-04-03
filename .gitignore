@@ -1,0 +1,12 @@
+/_build/
+/cover/
+/deps/
+/doc/
+/tmp/
+erl_crash.dump
+*.ez
+
+cashier-*.tar
+
+# Challenge specification files
+Technical_Evaluation_Elixir.pdf
