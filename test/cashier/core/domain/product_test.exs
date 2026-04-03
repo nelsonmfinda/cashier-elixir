@@ -16,7 +16,7 @@ defmodule Cashier.Core.Domain.ProductTest do
 
     test "raises FunctionClauseError if price is not a Decimal" do
       assert_raise FunctionClauseError, fn ->
-        Product.new("GR1", "Green tea", 3.11)
+        Product.new("GR1", "Green tea", Function.identity(3.11))
       end
     end
 
