@@ -1,0 +1,25 @@
+services:
+  cashier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cashier_app
+    environment:
+      - MIX_ENV=prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "bin/cashier", "pid"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: cashier_test
+    environment:
+      - MIX_ENV=test
+    command: mix test
+    profiles:
+      - test

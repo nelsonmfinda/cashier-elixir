@@ -1,0 +1,33 @@
+# Development/test Dockerfile — not for production use
+ARG ELIXIR_VERSION=1.17.3
+ARG ERLANG_VERSION=27.1.1
+ARG ALPINE_VERSION=3.20.3
+
+FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_VERSION}-alpine-${ALPINE_VERSION}
+
+ENV MIX_ENV=test \
+    LANG=C.UTF-8
+
+WORKDIR /app
+
+RUN apk add --no-cache build-base git
+
+RUN mix local.hex --force && \
+    mix local.rebar --force
+
+ARG APP_USER=developer
+ARG APP_UID=1000
+ARG APP_GID=1000
+
+RUN addgroup -g ${APP_GID} ${APP_USER} && \
+    adduser -u ${APP_UID} -G ${APP_USER} -h /app -D ${APP_USER} && \
+    chown -R ${APP_USER}:${APP_USER} /app
+
+USER ${APP_USER}
+
+COPY --chown=${APP_USER}:${APP_USER} mix.exs mix.lock ./
+RUN mix deps.get && mix deps.compile
+
+COPY --chown=${APP_USER}:${APP_USER} . .
+
+CMD ["mix", "test"]

@@ -1,0 +1,16 @@
+_build/
+deps/
+.elixir_ls/
+.git/
+.gitignore
+
+cover/
+doc/
+.formatter.exs
+*.pdf
+
+docker-compose*.yml
+Dockerfile
+
+.DS_Store
+Thumbs.db
