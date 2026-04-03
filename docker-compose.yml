@@ -2,7 +2,7 @@ services:
   cashier:
     build:
       context: .
-      dockerfile: Dockerfile
+      target: runtime
     container_name: cashier_app
     environment:
       - MIX_ENV=prod
@@ -16,10 +16,8 @@ services:
   test:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      target: test
     container_name: cashier_test
-    environment:
-      - MIX_ENV=test
     command: mix test
     profiles:
       - test

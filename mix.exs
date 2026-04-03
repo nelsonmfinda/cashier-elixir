@@ -45,7 +45,7 @@ defmodule Cashier.MixProject do
   defp deps do
     [
       {:decimal, "~> 2.0"},
-      {:git_hooks, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:git_hooks, "~> 0.8", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.18", only: :test},

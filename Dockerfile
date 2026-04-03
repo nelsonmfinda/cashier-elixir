@@ -1,8 +1,8 @@
-# ---- Build stage ----
 ARG ELIXIR_VERSION=1.17.3
 ARG ERLANG_VERSION=27.1.1
 ARG ALPINE_VERSION=3.20.3
 
+# ---- Build stage ----
 FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_VERSION}-alpine-${ALPINE_VERSION} AS build
 
 ENV MIX_ENV=prod \
@@ -24,6 +24,27 @@ RUN mix compile --warnings-as-errors
 
 RUN mix release
 
+# ---- Test stage ----
+FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_VERSION}-alpine-${ALPINE_VERSION} AS test
+
+ENV MIX_ENV=test \
+    LANG=C.UTF-8
+
+WORKDIR /app
+
+RUN apk add --no-cache build-base git
+
+RUN mix local.hex --force && \
+    mix local.rebar --force
+
+COPY mix.exs mix.lock ./
+RUN mix deps.get && mix deps.compile
+
+COPY . .
+
+CMD ["mix", "test"]
+
+# ---- Runtime stage ----
 FROM alpine:${ALPINE_VERSION} AS runtime
 
 ENV LANG=C.UTF-8
