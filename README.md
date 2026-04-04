@@ -30,6 +30,10 @@ mix setup
 mix test
 ```
 
+## Documentation
+
+Run `mix docs` to generate HTML documentation at `doc/index.html`.
+
 ## Try it in IEx
 
 ```elixir
@@ -54,16 +58,28 @@ Cashier.stop(session)
 ## Running with Docker
 
 ```bash
+docker build --target test -t cashier-test .
+docker run --rm -it cashier-test iex -S mix
+```
 
-docker build -t cashier .
-docker run --rm cashier eval '
-  Application.ensure_all_started(:cashier)
-  {:ok, s} = Cashier.new_checkout()
-  Enum.each(~w(GR1 SR1 GR1 GR1 CF1), fn c -> :ok = Cashier.scan(s, c) end)
-  IO.puts(Cashier.formatted_total(s))
-'
+Then inside IEx:
 
-# Run tests in Docker
+```elixir
+{:ok, checkout} = Cashier.new_checkout()
+
+Cashier.scan(checkout, "GR1")
+Cashier.scan(checkout, "SR1")
+Cashier.scan(checkout, "CF1")
+
+Cashier.formatted_total(checkout)
+#=> "£19.34"
+```
+
+Available products: `GR1` Green tea £3.11 · `SR1` Strawberries £5.00 · `CF1` Coffee £11.23
+
+Run the test suite in Docker:
+
+```bash
 docker compose run --rm test
 ```
 
