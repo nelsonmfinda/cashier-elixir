@@ -8,9 +8,9 @@ defmodule Cashier do
   ## Example
 
       {:ok, session} = Cashier.new_checkout()
-      :ok = Cashier.scan(session, "GR1")
-      :ok = Cashier.scan(session, "GR1")
-      :ok = Cashier.scan(session, "SR1")
+      Cashier.scan(session, "GR1")
+      Cashier.scan(session, "GR1")
+      Cashier.scan(session, "SR1")
       Cashier.formatted_total(session)
       #=> "£8.11"
   """

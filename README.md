@@ -3,8 +3,8 @@
 [![CI](https://github.com/nelsonmfinda/cashier-elixir/actions/workflows/ci.yml/badge.svg)](https://github.com/nelsonmfinda/cashier-elixir/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/nelsonmfinda/cashier-elixir/badge.svg?branch=main)](https://coveralls.io/github/nelsonmfinda/cashier-elixir?branch=main)
 
-A supermarket checkout service built in Elixir. Scan products, apply
-promotions, and get the total — all with exact `Decimal` arithmetic.
+A checkout service built in Elixir. Scan products, apply
+promotions, and get the total, all with exact `Decimal` arithmetic.
 
 ## Products and pricing rules
 
@@ -36,9 +36,9 @@ mix test
 iex -S mix
 
 {:ok, session} = Cashier.new_checkout()
-:ok = Cashier.scan(session, "GR1")
-:ok = Cashier.scan(session, "GR1")
-:ok = Cashier.scan(session, "SR1")
+Cashier.scan(session, "GR1")
+Cashier.scan(session, "GR1")
+Cashier.scan(session, "SR1")
 Cashier.formatted_total(session)
 #=> "£8.11"
 

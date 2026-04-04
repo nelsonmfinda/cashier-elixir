@@ -2,7 +2,7 @@ defmodule Cashier.Core.UseCases.Checkout do
   @moduledoc """
   Handles scanning products into a cart and computing the total.
 
-  This module sits in the core layer — it knows nothing about GenServers,
+  This module sits in the core layer, it knows nothing about GenServers,
   databases, or which concrete rules exist. The catalogue and pricing rules
   are injected by the caller, keeping this module easy to test in isolation.
   """
