@@ -11,7 +11,11 @@ defmodule Cashier.MixProject do
       elixirc_options: [warnings_as_errors: true],
       aliases: aliases(),
       deps: deps(),
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      docs: [
+        main: "Cashier",
+        extras: ["README.md"]
+      ]
     ]
   end
 
@@ -47,7 +51,8 @@ defmodule Cashier.MixProject do
       {:decimal, "~> 2.0"},
       {:git_hooks, "~> 0.8", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.4", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:excoveralls, "~> 0.18", only: :test},
       {:stream_data, "~> 1.0", only: :test}
     ]
