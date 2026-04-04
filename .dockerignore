@@ -1,15 +1,16 @@
+# Build artifacts
 _build/
 deps/
-.elixir_ls/
+
+# Version control
 .git/
 .gitignore
 
-cover/
-doc/
+# Dev tooling
+.credo.exs
+.dialyzer/
 .formatter.exs
-*.pdf
 
-Dockerfile
-
-.DS_Store
-Thumbs.db
+# Docs
+*.md
+doc/

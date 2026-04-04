@@ -61,5 +61,8 @@ COPY --from=build --chown=${APP_USER}:${APP_USER} /app/_build/prod/rel/cashier .
 
 USER ${APP_USER}
 
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+  CMD bin/cashier rpc "IO.puts(:ok)" || exit 1
+
 ENTRYPOINT ["bin/cashier"]
 CMD ["start"]

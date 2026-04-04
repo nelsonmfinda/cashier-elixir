@@ -57,30 +57,50 @@ Cashier.stop(session)
 
 ## Running with Docker
 
+Build the test image:
+
 ```bash
 docker build --target test -t cashier-test .
+```
+
+Start an interactive session:
+
+```bash
 docker run --rm -it cashier-test iex -S mix
 ```
 
-Then inside IEx:
+Then try the checkout directly in IEx:
 
 ```elixir
 {:ok, checkout} = Cashier.new_checkout()
 
 Cashier.scan(checkout, "GR1")
-Cashier.scan(checkout, "SR1")
 Cashier.scan(checkout, "CF1")
+Cashier.scan(checkout, "GR1")
 
 Cashier.formatted_total(checkout)
-#=> "£19.34"
+#=> "£14.34"
 ```
 
-Available products: `GR1` Green tea £3.11 · `SR1` Strawberries £5.00 · `CF1` Coffee £11.23
+Available products:
 
-Run tests in Docker:
+| Code | Name         | Price  |
+|------|--------------|--------|
+| GR1  | Green tea    | £3.11  |
+| SR1  | Strawberries | £5.00  |
+| CF1  | Coffee       | £11.23 |
+
+#### Run tests
 
 ```bash
 docker run --rm cashier-test mix test
+```
+
+#### Run quality checks
+
+```bash
+docker run --rm cashier-test mix credo --strict
+docker run --rm cashier-test mix dialyzer
 ```
 
 ## Quality checks
