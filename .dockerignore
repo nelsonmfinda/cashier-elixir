@@ -1,16 +1,9 @@
-# Build artifacts
 _build/
 deps/
-
-# Version control
 .git/
 .gitignore
-
-# Dev tooling
 .credo.exs
 .dialyzer/
 .formatter.exs
-
-# Docs
 *.md
 doc/
