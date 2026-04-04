@@ -77,10 +77,10 @@ Cashier.formatted_total(checkout)
 
 Available products: `GR1` Green tea £3.11 · `SR1` Strawberries £5.00 · `CF1` Coffee £11.23
 
-Run the test suite in Docker:
+Run tests in Docker:
 
 ```bash
-docker compose run --rm test
+docker run --rm cashier-test mix test
 ```
 
 ## Quality checks

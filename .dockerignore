@@ -9,7 +9,6 @@ doc/
 .formatter.exs
 *.pdf
 
-docker-compose*.yml
 Dockerfile
 
 .DS_Store
