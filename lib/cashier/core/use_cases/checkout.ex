@@ -19,25 +19,31 @@ defmodule Cashier.Core.UseCases.Checkout do
     end
   end
 
-  @spec total(Cart.t(), [struct()]) :: Decimal.t()
-  def total(%Cart{} = cart, pricing_rules) do
-    items = Cart.items(cart)
-    rule_index = index_rules(items, pricing_rules)
+  @spec build_rule_index([struct()]) :: %{String.t() => struct() | nil}
+  def build_rule_index(pricing_rules) do
+    pricing_rules
+    |> Enum.map(fn rule -> {rule.product_code, rule} end)
+    |> Map.new()
+  end
 
-    items
+  @spec total(Cart.t(), [struct()] | %{String.t() => struct() | nil}) :: Decimal.t()
+  def total(%Cart{} = cart, rules) when is_list(rules) do
+    cart
+    |> Cart.items()
     |> Enum.reduce(Decimal.new("0.00"), fn item, acc ->
-      Decimal.add(acc, line_total(item, Map.get(rule_index, item.product.code)))
+      rule = Enum.find(rules, &PricingRule.applies_to?(&1, item.product.code))
+      Decimal.add(acc, line_total(item, rule))
     end)
     |> Decimal.round(2)
   end
 
-  defp index_rules(items, pricing_rules) do
-    items
-    |> Enum.map(& &1.product.code)
-    |> Enum.uniq()
-    |> Map.new(fn code ->
-      {code, Enum.find(pricing_rules, &PricingRule.applies_to?(&1, code))}
+  def total(%Cart{} = cart, rule_index) when is_map(rule_index) do
+    cart
+    |> Cart.items()
+    |> Enum.reduce(Decimal.new("0.00"), fn item, acc ->
+      Decimal.add(acc, line_total(item, Map.get(rule_index, item.product.code)))
     end)
+    |> Decimal.round(2)
   end
 
   defp line_total(item, nil), do: CartItem.subtotal(item)

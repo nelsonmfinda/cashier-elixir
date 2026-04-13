@@ -11,6 +11,8 @@ defmodule Cashier.Core.Domain.Product do
       %Cashier.Core.Domain.Product{code: "GR1", name: "Green tea", price: Decimal.new("3.11")}
   """
 
+  @max_price Decimal.new("999999.99")
+
   @enforce_keys [:code, :name, :price]
   defstruct [:code, :name, :price]
 
@@ -27,6 +29,11 @@ defmodule Cashier.Core.Domain.Product do
     if Decimal.negative?(price) do
       raise ArgumentError,
             "price must be non-negative, got: #{Decimal.to_string(price)}"
+    end
+
+    if Decimal.compare(price, @max_price) == :gt do
+      raise ArgumentError,
+            "price exceeds maximum allowed value of #{Decimal.to_string(@max_price)}"
     end
 
     %__MODULE__{code: code, name: name, price: price}

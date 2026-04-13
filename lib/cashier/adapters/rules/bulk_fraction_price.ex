@@ -32,6 +32,12 @@ defmodule Cashier.Adapters.Rules.BulkFractionPrice do
     def applies_to?(%{product_code: code}, code), do: true
     def applies_to?(_rule, _code), do: false
 
+    def calculate(_rule, 0, _unit_price), do: Decimal.new("0.00")
+
+    def calculate(_rule, quantity, _unit_price) when quantity < 0 do
+      raise ArgumentError, "quantity must be non-negative, got: #{quantity}"
+    end
+
     def calculate(%{threshold: threshold, numerator: num, denominator: den}, quantity, unit_price)
         when quantity > 0 and quantity >= threshold and den > 0 do
       Decimal.new(quantity)
