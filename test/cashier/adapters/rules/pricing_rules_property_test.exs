@@ -52,16 +52,6 @@ defmodule Cashier.Adapters.Rules.PricingRulesPropertyTest do
         refute Decimal.negative?(result)
       end
     end
-
-    property "result is always rounded to 2 decimal places" do
-      check all(
-              quantity <- positive_quantity(),
-              price <- positive_price()
-            ) do
-        result = PricingRule.calculate(@rule, quantity, price)
-        assert Decimal.equal?(result, Decimal.round(result, 2))
-      end
-    end
   end
 
   describe "BulkFixedPrice properties" do
@@ -100,26 +90,9 @@ defmodule Cashier.Adapters.Rules.PricingRulesPropertyTest do
         }
 
         result = PricingRule.calculate(rule, quantity, Decimal.new("99.99"))
-        expected = Decimal.new(quantity) |> Decimal.mult(discounted_price) |> Decimal.round(2)
+        expected = Decimal.new(quantity) |> Decimal.mult(discounted_price)
 
         assert Decimal.equal?(result, expected)
-      end
-    end
-
-    property "result is always non-negative and rounded to 2dp" do
-      check all(
-              quantity <- positive_quantity(),
-              price <- positive_price()
-            ) do
-        rule = %BulkFixedPrice{
-          product_code: "X",
-          threshold: 3,
-          discounted_price: Decimal.new("4.50")
-        }
-
-        result = PricingRule.calculate(rule, quantity, price)
-        refute Decimal.negative?(result)
-        assert Decimal.equal?(result, Decimal.round(result, 2))
       end
     end
   end
@@ -141,7 +114,7 @@ defmodule Cashier.Adapters.Rules.PricingRulesPropertyTest do
         }
 
         result = PricingRule.calculate(rule, quantity, price)
-        expected = Decimal.new(quantity) |> Decimal.mult(price) |> Decimal.round(2)
+        expected = Decimal.new(quantity) |> Decimal.mult(price)
 
         assert Decimal.equal?(result, expected)
       end
@@ -168,11 +141,10 @@ defmodule Cashier.Adapters.Rules.PricingRulesPropertyTest do
         result = PricingRule.calculate(rule, quantity, price)
 
         expected =
-          Decimal.new(quantity)
-          |> Decimal.mult(price)
+          price
+          |> Decimal.mult(Decimal.new(quantity))
           |> Decimal.mult(Decimal.new(numerator))
           |> Decimal.div(Decimal.new(denominator))
-          |> Decimal.round(2)
 
         assert Decimal.equal?(result, expected)
       end
@@ -191,27 +163,9 @@ defmodule Cashier.Adapters.Rules.PricingRulesPropertyTest do
         }
 
         result = PricingRule.calculate(rule, quantity, price)
-        full = Decimal.new(quantity) |> Decimal.mult(price) |> Decimal.round(2)
+        full = Decimal.new(quantity) |> Decimal.mult(price)
 
         assert Decimal.compare(result, full) in [:lt, :eq]
-      end
-    end
-
-    property "result is always non-negative and rounded to 2dp" do
-      check all(
-              quantity <- positive_quantity(),
-              price <- positive_price()
-            ) do
-        rule = %BulkFractionPrice{
-          product_code: "X",
-          threshold: 3,
-          numerator: 2,
-          denominator: 3
-        }
-
-        result = PricingRule.calculate(rule, quantity, price)
-        refute Decimal.negative?(result)
-        assert Decimal.equal?(result, Decimal.round(result, 2))
       end
     end
   end

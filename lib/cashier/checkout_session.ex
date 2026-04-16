@@ -10,6 +10,8 @@ defmodule Cashier.CheckoutSession do
 
   use GenServer, restart: :temporary
 
+  require Logger
+
   alias Cashier.Core.Domain.Cart
   alias Cashier.Core.UseCases.Checkout
   alias Cashier.{Defaults, PriceFormatter, Session}
@@ -17,15 +19,16 @@ defmodule Cashier.CheckoutSession do
   defmodule State do
     @moduledoc "Internal state struct for a checkout session process."
 
-    @enforce_keys [:id, :cart, :catalogue, :pricing_rules, :idle_timeout]
-    defstruct [:id, :cart, :catalogue, :pricing_rules, :idle_timeout]
+    @enforce_keys [:id, :cart, :catalogue, :rule_index, :idle_timeout, :cached_total]
+    defstruct [:id, :cart, :catalogue, :rule_index, :idle_timeout, :cached_total]
 
     @type t :: %__MODULE__{
             id: String.t(),
             cart: Cart.t(),
             catalogue: module(),
-            pricing_rules: [struct()],
-            idle_timeout: timeout()
+            rule_index: %{String.t() => struct() | nil},
+            idle_timeout: timeout(),
+            cached_total: Decimal.t()
           }
   end
 
@@ -47,13 +50,15 @@ defmodule Cashier.CheckoutSession do
     catalogue = Keyword.get(opts, :catalogue, Defaults.catalogue())
     pricing_rules = Keyword.get(opts, :pricing_rules, Defaults.pricing_rules())
     idle_timeout = Keyword.get(opts, :idle_timeout, @default_idle_timeout)
+    rule_index = Checkout.build_rule_index(pricing_rules)
 
     state = %State{
       id: id,
       cart: Cart.new(),
       catalogue: catalogue,
-      pricing_rules: pricing_rules,
-      idle_timeout: idle_timeout
+      rule_index: rule_index,
+      idle_timeout: idle_timeout,
+      cached_total: Decimal.new("0.00")
     }
 
     case DynamicSupervisor.start_child(Cashier.SessionSupervisor, {__MODULE__, state}) do
@@ -105,27 +110,34 @@ defmodule Cashier.CheckoutSession do
   end
 
   @impl true
-  def handle_call({:scan, code}, _from, %State{cart: cart, catalogue: catalogue} = state) do
+  def handle_call(
+        {:scan, code},
+        _from,
+        %State{cart: cart, catalogue: catalogue, rule_index: rule_index, id: session_id} = state
+      ) do
     case Checkout.scan(cart, code, catalogue) do
       {:ok, updated_cart} ->
-        {:reply, :ok, %State{state | cart: updated_cart}, state.idle_timeout}
+        new_total = Checkout.total(updated_cart, rule_index)
+        new_state = %{state | cart: updated_cart, cached_total: new_total}
+        {:reply, :ok, new_state, state.idle_timeout}
 
-      {:error, _reason} = error ->
-        {:reply, error, state, state.idle_timeout}
+      {:error, {:product_not_found, scanned_code}} ->
+        Logger.warning("Session #{session_id}: product not found - #{scanned_code}")
+        {:reply, {:error, {:product_not_found, scanned_code}}, state, state.idle_timeout}
     end
   end
 
-  def handle_call(:total, _from, %State{cart: cart, pricing_rules: rules} = state) do
-    {:reply, Checkout.total(cart, rules), state, state.idle_timeout}
+  def handle_call(:total, _from, %State{cached_total: total} = state) do
+    {:reply, total, state, state.idle_timeout}
   end
 
-  def handle_call(:formatted_total, _from, %State{cart: cart, pricing_rules: rules} = state) do
-    total = Checkout.total(cart, rules)
+  def handle_call(:formatted_total, _from, %State{cached_total: total} = state) do
     {:reply, PriceFormatter.format(total), state, state.idle_timeout}
   end
 
   def handle_call(:clear, _from, %State{} = state) do
-    {:reply, :ok, %State{state | cart: Cart.new()}, state.idle_timeout}
+    {:reply, :ok, %{state | cart: Cart.new(), cached_total: Decimal.new("0.00")},
+     state.idle_timeout}
   end
 
   @impl true

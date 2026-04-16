@@ -15,7 +15,8 @@ defmodule Cashier.MixProject do
       docs: [
         main: "Cashier",
         extras: ["README.md"]
-      ]
+      ],
+      preferred_envs: [docs: :test]
     ]
   end
 
