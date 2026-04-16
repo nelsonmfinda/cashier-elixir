@@ -40,17 +40,14 @@ defmodule Cashier.Adapters.Rules.BulkFractionPrice do
 
     def calculate(%{threshold: threshold, numerator: num, denominator: den}, quantity, unit_price)
         when quantity > 0 and quantity >= threshold and den > 0 do
-      Decimal.new(quantity)
-      |> Decimal.mult(unit_price)
+      unit_price
+      |> Decimal.mult(Decimal.new(quantity))
       |> Decimal.mult(Decimal.new(num))
       |> Decimal.div(Decimal.new(den))
-      |> Decimal.round(2)
     end
 
     def calculate(_rule, quantity, unit_price) when quantity > 0 do
-      Decimal.new(quantity)
-      |> Decimal.mult(unit_price)
-      |> Decimal.round(2)
+      Decimal.mult(Decimal.new(quantity), unit_price)
     end
   end
 end

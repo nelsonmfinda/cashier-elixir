@@ -28,10 +28,7 @@ defmodule Cashier.Adapters.Rules.BuyOneGetOneFree do
 
     def calculate(_rule, quantity, unit_price) when quantity > 0 do
       charged = div(quantity + 1, 2)
-
-      Decimal.new(charged)
-      |> Decimal.mult(unit_price)
-      |> Decimal.round(2)
+      Decimal.mult(Decimal.new(charged), unit_price)
     end
   end
 end

@@ -42,15 +42,11 @@ defmodule Cashier.Adapters.Rules.BulkFixedPrice do
           _unit_price
         )
         when quantity > 0 and quantity >= threshold do
-      Decimal.new(quantity)
-      |> Decimal.mult(discounted_price)
-      |> Decimal.round(2)
+      Decimal.mult(Decimal.new(quantity), discounted_price)
     end
 
     def calculate(_rule, quantity, unit_price) when quantity > 0 do
-      Decimal.new(quantity)
-      |> Decimal.mult(unit_price)
-      |> Decimal.round(2)
+      Decimal.mult(Decimal.new(quantity), unit_price)
     end
   end
 end
