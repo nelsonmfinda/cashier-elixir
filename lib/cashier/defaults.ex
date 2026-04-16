@@ -27,7 +27,9 @@ defmodule Cashier.Defaults do
     rules
   end
 
-  defp validate_rules!(rules) do
+  @doc "Validates pricing rules configuration. Raises on invalid config."
+  @spec validate_rules!([struct()]) :: :ok
+  def validate_rules!(rules) do
     codes = Enum.map(rules, & &1.product_code)
 
     if length(codes) != length(Enum.uniq(codes)) do
