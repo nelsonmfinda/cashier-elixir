@@ -163,21 +163,3 @@ lib/cashier/
 ├── price_formatter.ex   Formatting
 └── session.ex           Opaque session handle
 ```
-
-Dependencies flow inward: adapters depend on ports, ports depend on
-domain types, the core depends on nothing external.
-
-## Design decisions
-
-- **GenServer per session** — isolated state, concurrent checkouts, fault
-  tolerance via `DynamicSupervisor` with `restart: :temporary`.
-- **Registry for lookup** — callers get an opaque `%Session{}` handle,
-  never a raw PID. Idle sessions auto terminate (default 30 min).
-- **Decimal everywhere** — no floats for money. Each pricing rule rounds
-  its result to 2dp; the checkout rounds the aggregate total as well.
-- **Protocol for rules** — configurable structs with guard clauses in
-  function heads. New promotions are new modules, zero modification to
-  existing code.
-- **Behaviour for catalogues** — compile-time contract, dialyzer friendly.
-- **Property based tests** — StreamData checks rule invariants (non negative,
-  rounded, discount never exceeds full price) for arbitrary quantities.
